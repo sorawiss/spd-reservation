@@ -1,103 +1,173 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { format } from 'date-fns';
+import Calendar from 'react-calendar';
+import { CalendarDays, Clock, Users, Wifi } from 'lucide-react';
+import { MEETING_ROOMS } from './types';
+import MeetingRoomGrid from './components/MeetingRoomGrid';
+import BookingModal from './components/BookingModal';
+import { useRealTimeBookings } from './hooks/useRealTimeBookings';
+import 'react-calendar/dist/Calendar.css';
+
+export default function HomePage() {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<{start: string; end: string} | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+
+  // Use real-time bookings hook
+  const { bookings, loading, error, refetch } = useRealTimeBookings({
+    date: selectedDate,
+    enabled: true,
+    interval: 5000 // Poll every 5 seconds for real-time updates
+  });
+
+  // Handle date selection
+  const handleDateChange = (date: Date | Date[]) => {
+    if (Array.isArray(date)) return;
+    setSelectedDate(date);
+  };
+
+  // Handle room booking
+  const handleRoomBooking = (roomId: string, timeSlot: {start: string; end: string}) => {
+    setSelectedRoom(roomId);
+    setSelectedTimeSlot(timeSlot);
+    setShowBookingModal(true);
+  };
+
+  // Handle successful booking
+  const handleBookingSuccess = () => {
+    setShowBookingModal(false);
+    setSelectedRoom(null);
+    setSelectedTimeSlot(null);
+    refetch(); // Immediately refresh bookings after successful booking
+  };
+
+  // Disable past dates
+  const tileDisabled = ({ date }: { date: Date }) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-white">
+      {/* Header Section */}
+      <div className="bg-white border-b-2 border-cyan-100 shadow-sm mb-8">
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+              SSPD Meeting Room Booking
+            </h1>
+            <p className="text-lg text-gray-600">
+              Reserve your meeting space with ease
+            </p>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Left Column - Calendar */}
+          <div className="lg:col-span-1">
+            <div className="card">
+              <div className="flex items-center space-x-2 mb-4">
+                <CalendarDays className="h-6 w-6 text-cyan-500" />
+                <h2 className="text-xl font-semibold text-gray-800">
+                  Select Date
+                </h2>
+              </div>
+              
+              <Calendar
+                onChange={handleDateChange}
+                value={selectedDate}
+                tileDisabled={tileDisabled}
+                className="react-calendar w-full"
+                locale="en-US"
+                formatMonthYear={(locale, date) => 
+                  format(date, 'MMMM yyyy')
+                }
+              />
+              
+              <div className="mt-4 p-3 bg-cyan-50 rounded-lg">
+                <div className="flex items-center space-x-2 text-cyan-700">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm font-medium">
+                    Selected: {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="card mt-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Today's Summary
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Total Bookings:</span>
+                  <span className="font-semibold text-cyan-600">
+                    {bookings.length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Available Rooms:</span>
+                  <span className="font-semibold text-green-600">
+                    {MEETING_ROOMS.length - new Set(bookings.map(b => b.roomId)).size}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Meeting Rooms */}
+          <div className="lg:col-span-2">
+            <div className="card">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-6 w-6 text-cyan-500" />
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Meeting Rooms
+                  </h2>
+                </div>
+                                 <div className="flex items-center space-x-4">
+                   {loading && (
+                     <div className="flex items-center space-x-2 text-cyan-600">
+                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-cyan-600"></div>
+                       <span className="text-sm">Loading...</span>
+                     </div>
+                   )}
+                   <div className="flex items-center space-x-2 text-green-600">
+                     <Wifi className="h-4 w-4" />
+                     <span className="text-sm">Live Updates</span>
+                   </div>
+                 </div>
+              </div>
+
+              <MeetingRoomGrid
+                selectedDate={selectedDate}
+                bookings={bookings}
+                onRoomBooking={handleRoomBooking}
+                loading={loading}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && selectedRoom && selectedTimeSlot && (
+        <BookingModal
+          roomId={selectedRoom}
+          date={selectedDate}
+          timeSlot={selectedTimeSlot}
+          onClose={() => setShowBookingModal(false)}
+          onSuccess={handleBookingSuccess}
+        />
+      )}
     </div>
   );
 }
