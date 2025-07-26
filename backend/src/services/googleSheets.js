@@ -6,7 +6,19 @@ const SHEET_NAME = 'Bookings';
 
 // Initialize Google Sheets API
 const auth = new google.auth.GoogleAuth({
-  keyFile: path.join(__dirname, '../../../google-api-key.json'),
+  credentials: {
+    type: process.env.GOOGLE_TYPE,
+    project_id: process.env.GOOGLE_PROJECT_ID,
+    private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    auth_uri: process.env.GOOGLE_AUTH_URI,
+    token_uri: process.env.GOOGLE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_X509_CERT_URL,
+    client_x509_cert_url: process.env.GOOGLE_CLIENT_X509_CERT_URL,
+    universe_domain: process.env.GOOGLE_UNIVERSE_DOMAIN,
+  },
   scopes: ['https://www.googleapis.com/auth/spreadsheets'],
 });
 
@@ -181,7 +193,7 @@ class GoogleSheetsService {
   static async getBookingsByDate(date) {
     try {
       const allBookings = await this.getAllBookings();
-      return allBookings.filter(booking => 
+      return allBookings.filter(booking =>
         booking.date === date && booking.status === 'active'
       );
     } catch (error) {
@@ -194,7 +206,7 @@ class GoogleSheetsService {
   static async getBookingsByUser(employeeId) {
     try {
       const allBookings = await this.getAllBookings();
-      return allBookings.filter(booking => 
+      return allBookings.filter(booking =>
         booking.userDetails.employeeId === employeeId
       );
     } catch (error) {
@@ -219,7 +231,7 @@ class GoogleSheetsService {
       }
 
       const rowIndex = response.data.values.findIndex((row) => row[0] === bookingId);
-      
+
       if (rowIndex === -1) {
         return false;
       }
