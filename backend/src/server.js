@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
@@ -12,16 +13,16 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL ,
+    origin: process.env.FRONTEND_URL || '*',
     methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
 
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: process.env.FRONTEND_URL ,
+  origin: process.env.FRONTEND_URL || '*',
   credentials: true
 }));
 app.use(express.json());
@@ -40,6 +41,16 @@ app.use('/api/stats', statsRouter);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'SSPD Booking System Backend is running' });
 });
+
+// Serve static files from React build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../frontend/build')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/build', 'index.html'));
+  });
+}
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
