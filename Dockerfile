@@ -54,7 +54,8 @@ RUN chown -R nodejs:nodejs /app
 # Switch to nodejs user
 USER nodejs
 
-# Expose port
+# Expose ports
+EXPOSE 3000
 EXPOSE 5000
 
 # Health check
@@ -64,9 +65,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Copy startup script
-COPY backend/start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
-# Start the application
-CMD ["/app/start.sh"] 
+# Start both backend and frontend servers
+CMD ["sh", "-c", "node backend/src/server.js & node backend/src/frontend-server.js & wait"] 
