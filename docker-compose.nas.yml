@@ -7,7 +7,8 @@ services:
       dockerfile: Dockerfile
     container_name: spd-reservation-app
     ports:
-      - "5000:5000"
+      - "3000:3000"  # Frontend port
+      - "5000:5000"  # Backend API port
     environment:
       - NODE_ENV=production
       - PORT=5000

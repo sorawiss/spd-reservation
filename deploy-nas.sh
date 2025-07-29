@@ -118,6 +118,7 @@ if docker-compose -f docker-compose.nas.yml ps | grep -q "Up"; then
     print_nas "   Frontend: http://$NAS_IP:3000"
     print_nas "   Backend API: http://$NAS_IP:5000"
     print_nas "   Health Check: http://$NAS_IP:5000/api/health"
+    print_nas "   Nginx Proxy: http://$NAS_IP:80 (if enabled)"
     
     # Show NAS storage info
     print_nas "💾 NAS Storage Locations:"

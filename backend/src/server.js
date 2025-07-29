@@ -19,6 +19,7 @@ const io = new Server(server, {
 });
 
 const PORT = process.env.PORT || 5000;
+const FRONTEND_PORT = process.env.FRONTEND_PORT || 3000;
 
 // Middleware
 app.use(cors({

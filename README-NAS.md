@@ -113,6 +113,7 @@ Once deployed, access your application at:
 - **Frontend**: `http://your-nas-ip:3000`
 - **Backend API**: `http://your-nas-ip:5000`
 - **Health Check**: `http://your-nas-ip:5000/api/health`
+- **Nginx Proxy**: `http://your-nas-ip:80` (if enabled)
 
 ## 🔒 NAS Security Considerations
 

@@ -82,6 +82,7 @@ Once deployed, you can access the application at:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:5000
 - **Health Check**: http://localhost:5000/api/health
+- **Nginx Proxy**: http://localhost:80 (if enabled)
 
 ## 🔧 Configuration Options
 

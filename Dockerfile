@@ -64,5 +64,9 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
+# Copy startup script
+COPY backend/start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Start the application
-CMD ["node", "backend/src/server.js"] 
+CMD ["/app/start.sh"] 

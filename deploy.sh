@@ -82,6 +82,7 @@ if docker-compose ps | grep -q "Up"; then
     print_status "🌐 Frontend: http://localhost:3000"
     print_status "🔧 Backend API: http://localhost:5000"
     print_status "📊 Health Check: http://localhost:5000/api/health"
+    print_status "📋 Nginx Proxy: http://localhost:80 (if enabled)"
     
     # Show container logs
     print_status "📋 Container logs:"
